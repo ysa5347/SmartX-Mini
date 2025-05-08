@@ -278,6 +278,24 @@ ssh <NUC3 username>@nuc03
 sudo swapoff -a
 ```
 
+위의 명령어는 일시적으로 swap memory의 사용을 비활성화 하기 때문에, NUC을 재부팅하면 매번 같은 명령어를 실행해서 다시 swap memory 사용을 비활성화 해야 한다는 번거로움이 있습니다.  
+따라서 아래의 파일을 수정하여 재부팅 이후에도 swap memory가 비활성화되도록 만들겠습니다. 파일을 열어주시기 바랍니다.
+
+```shell
+sudo vim /etc/fstab
+```
+
+파일의 내용 중 다음과 같은 형식을 갖는 부분을 찾아 `#`기호를 맨 앞에 붙여 주석처리 합니다.
+
+> [!CAUTION]
+>
+> swap memory와 관련된 부분이 아닌, 다른 부분을 잘못 수정하면 치명적인 오류가 발생할 수 있습니다.  
+> 주의하여 진행해주시기 바랍니다.
+
+```text
+#UUID=xxxx-xxxx-xxxx none swap sw 0 0 # 이 예시와 같이, line의 맨 앞에 # 기호를 붙여주시기 바랍니다.
+```
+
 ### 2-3-2. Install Kubernetes
 
 > [!warning]
@@ -304,6 +322,38 @@ sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
 이제 쿠버네티스 클러스터를 실제로 구축하도록 하겠습니다.
 
 ### 2-4-1. Kubernetes Master Setting(For NUC1)
+
+다음의 명령어를 실행하여 파일을 열어주시기 바랍니다.  
+kubernetes에서는 bridges traffic에 대한 iptables 규칙을 활성화하기 위한 모듈이 필요하며, 이 모듈이 누락되면 kubeadm 초기화에 실패합니다.  
+이와 관련된 내용을 추가하겠습니다.
+
+```shell
+sudo vim /etc/modules-load.d/modules.conf
+```
+
+해당 파일에 `br_netfilter` 항목이 없다면, 추가하시기 바랍니다.  
+**예시에서 보이는 ...은 제외하고 `br_netfilter`만 입력하시기 바랍니다.**
+
+```text
+...
+
+br_netfilter
+
+...
+```
+
+해당 내용을 입력하면 이후에 NUC이 재부팅 되어도 bridge-nf-call-iptables kernel module이 자동으로 로드됩니다.  
+위 내용은 재부팅 이후부터 적용되기 때문에, 지금은 편의를 위해서 명령어를 통해 bridge-nf-call-iptables kernel module을 로드하겠습니다.  
+아래의 명령어를 입력해시기 바랍니다.
+
+```shell
+sudo modprobe br_netfilter
+lsmod | grep br_netfilter
+```
+
+터미널에 `br_netfilter`가 출력되면 성공적으로 로드된 것입니다.
+
+이제 아래의 명령어를 입력하여 master node의 설정을 진행합니다.
 
 ```shell
 # From NUC1

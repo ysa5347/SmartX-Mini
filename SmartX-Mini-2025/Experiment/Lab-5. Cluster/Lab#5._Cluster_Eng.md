@@ -284,6 +284,23 @@ ssh <NUC3 username>@nuc03
 sudo swapoff -a
 ```
 
+The above command temporarily disables the use of swap memory. Therefore, after rebooting the NUC, you would need to run the same command again to disable swap memory, which can be inconvenient.  
+To make swap memory remain disabled even after reboot, we will modify the following file. Please open the file.
+
+```shell
+sudo vim /etc/fstab
+```
+
+In the contents of the file, look for a line with the following format and add a # symbol at the beginning to comment it out.
+
+> [!CAUTION]
+>
+> Be very careful not to modify anything other than the line related to swap memory, as making a mistake here can lead to critical system errors.
+
+```text
+#UUID=xxxx-xxxx-xxxx none swap sw 0 0 # As shown in this example, please add a `#` symbol at the beginning of the line.
+```
+
 ### 2-3-2. Install Kubernetes
 
 > [!warning]
@@ -310,6 +327,37 @@ With that, the preparation to build a Kubernetes cluster is complete.
 Now let’s build the Kubernetes cluster.
 
 ### 2-4-1. Kubernetes Master Setting(For NUC1)
+
+Please execute the following command to open the file.
+In Kubernetes, a module is required to enable iptables rules for bridged traffic. If this module is missing, kubeadm initialization will fail.
+Let’s add the necessary configuration related to this.
+
+```shell
+sudo vim /etc/modules-load.d/modules.conf
+```
+
+If the `br_netfilter` entry is not present in the file, please add it.  
+**Please enter only br_netfilter as shown in the example, without the ... .**
+
+```text
+...
+
+br_netfilter #If this part is not present in the file, please add it.
+
+...
+```
+
+By adding this entry, the bridge-nf-call-iptables kernel module will automatically load even after the NUC is rebooted.
+Since this change will take effect only after a reboot, let’s manually load the bridge-nf-call-iptables kernel module for now using the following commands.
+
+```shell
+sudo modprobe br_netfilter
+lsmod | grep br_netfilter
+```
+
+If `br_netfilter` appears in the terminal output, it means the module has been successfully loaded.
+
+Now, proceed with the following commands to configure the master node:
 
 ```shell
 # From NUC1
