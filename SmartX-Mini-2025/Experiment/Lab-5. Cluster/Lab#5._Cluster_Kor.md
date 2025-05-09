@@ -315,14 +315,6 @@ sudo apt update
 sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
 ```
 
-이로써 쿠버네티스 클러스터를 구성하기 위한 준비를 마쳤습니다.
-
-## 2-4. Kubernetes Configuration
-
-이제 쿠버네티스 클러스터를 실제로 구축하도록 하겠습니다.
-
-### 2-4-1. Kubernetes Master Setting(For NUC1)
-
 다음의 명령어를 실행하여 파일을 열어주시기 바랍니다.  
 kubernetes에서는 bridges traffic에 대한 iptables 규칙을 활성화하기 위한 모듈이 필요하며, 이 모듈이 누락되면 kubeadm 초기화에 실패합니다.  
 이와 관련된 내용을 추가하겠습니다.
@@ -352,6 +344,14 @@ lsmod | grep br_netfilter
 ```
 
 터미널에 `br_netfilter`가 출력되면 성공적으로 로드된 것입니다.
+
+이로써 쿠버네티스 클러스터를 구성하기 위한 준비를 마쳤습니다.
+
+## 2-4. Kubernetes Configuration
+
+이제 쿠버네티스 클러스터를 실제로 구축하도록 하겠습니다.
+
+### 2-4-1. Kubernetes Master Setting(For NUC1)
 
 이제 아래의 명령어를 입력하여 master node의 설정을 진행합니다.
 
