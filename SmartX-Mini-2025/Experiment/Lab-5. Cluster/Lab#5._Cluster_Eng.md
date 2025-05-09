@@ -320,14 +320,6 @@ sudo apt update
 sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
 ```
 
-With that, the preparation to build a Kubernetes cluster is complete.
-
-## 2-4. Kubernetes Configuration
-
-Now let’s build the Kubernetes cluster.
-
-### 2-4-1. Kubernetes Master Setting(For NUC1)
-
 Please execute the following command to open the file.
 In Kubernetes, a module is required to enable iptables rules for bridged traffic. If this module is missing, kubeadm initialization will fail.
 Let’s add the necessary configuration related to this.
@@ -356,6 +348,14 @@ lsmod | grep br_netfilter
 ```
 
 If `br_netfilter` appears in the terminal output, it means the module has been successfully loaded.
+
+With that, the preparation to build a Kubernetes cluster is complete.
+
+## 2-4. Kubernetes Configuration
+
+Now let’s build the Kubernetes cluster.
+
+### 2-4-1. Kubernetes Master Setting(For NUC1)
 
 Now, proceed with the following commands to configure the master node:
 
