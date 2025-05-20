@@ -458,8 +458,6 @@ vim postgres.yaml
 >
 > **StatefulSet**: 상태를 가지는 어플리케이션(예: DB) 배포를 위한 리소스입니다. 일반 Deployment와 달리, 고정된 이름과 스토리지 볼륨을 보장하며, 각 인스턴스가 고유한 ID를 가지고 안정적인 스토리지 연결이 필요한 상황에 적합합니다.
 
-아래에 입력한 `POSTGRES_PASSWORD`
-
 ```yaml
 # postgres.yaml
 apiVersion: v1

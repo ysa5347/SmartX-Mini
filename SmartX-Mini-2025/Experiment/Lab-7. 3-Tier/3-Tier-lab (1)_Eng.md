@@ -438,10 +438,9 @@ spec:
 kubectl apply -f postgres-pv.yaml
 
 # Check the created Persistent Volume
+# You may see PVs from other students as well.
 kubectl get pv
 ```
-
-You may see PVs from other students as well.
 
 ### 3-1-2. Deploying PostgreSQL Database
 
@@ -469,18 +468,18 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 type: Opaque
 stringData:
   POSTGRES_USER: myuser
-  POSTGRES_PASSWORD: mypassword
+  POSTGRES_PASSWORD: mypassword # Don't use this kind of password in real life. It's just for study.
   POSTGRES_DB: mydb
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 spec:
   selector:
     app: postgres
@@ -493,7 +492,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 spec:
   serviceName: postgres
   replicas: 1
@@ -524,7 +523,7 @@ spec:
         storageClassName: standard
         selector:
           matchLabels:
-            volume: postgres-pv-<your_namespace>
+            volume: postgres-pv-<your_namespace> # You need to replace this with your own namespace
         resources:
           requests:
             storage: 5Gi
@@ -567,11 +566,11 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: backend-secret
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://myuser:mypassword@postgres.<your_namespace>.svc.cluster.local:5432/mydb"
-  PASSWORD_SECRET: <your_password_secret>
+  DATABASE_URL: "postgresql://myuser:mypassword@postgres.<your_namespace>.svc.cluster.local:5432/mydb" # You need to replace this with your own namespace
+  PASSWORD_SECRET: <your_password_secret> # You need to replace this with your own secret like random string
 ```
 
 Apply the file:
@@ -595,7 +594,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-api
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 spec:
   replicas: 3
   selector:
@@ -614,7 +613,7 @@ spec:
           envFrom:
             - secretRef:
                 name: backend-secret
-          resources:
+          resources:  # You can limit container's resource usage by doing like this:
             requests:
               cpu: 100m
               memory: 128Mi
@@ -644,10 +643,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-svc
-  namespace: <your_namespace>
+  namespace: <your_namespace> # You need to replace this with your own namespace
 spec:
   selector:
-    app: backend-api
+    app: backend-api # should match with spec.selector.matchLabels.app in deployment.yaml
   ports:
     - port: 80
       targetPort: 3000
@@ -890,6 +889,14 @@ In the example above, the IP address is `10.244.2.107`.
 
 ### 5-1-2. Check Web Service
 
+> [!Note]
+>
+> Because of time shortage of creating this lab, english version of website cannot be prepared.
+>
+> So, this guide will let you know meaning of each button, or interface, which are written in Korean. If you are confused, then please call TA.
+>
+> Sorry for your inconvenience.
+
 In your browser, go to:
 
 ```
@@ -901,47 +908,42 @@ You should see a page like the one below:
 ![WebPage_Main](./img/webpage.png)
 
 This is an anonymous message board service. Anyone can create and view posts without logging in.  
-Currently, no posts exist, so the list is empty. Click the “Create Post” button to add a post.  
+Currently, no posts exist, so the list is empty. Click the “Create Post(게시글 작성)” button to add a post.  
 You’ll see a screen like this:
 
 ![WebPage_Write](./img/write.png)
 
-Enter a title, nickname, password, and post content. Then click the “Submit” button.
+Enter a title, nickname, password, and post content. Then click the “Submit(작성)” button.
 
 You will now see your newly created post.
 
-> [!Note]
->
-> If you didn’t install a Korean input method during Ubuntu installation, you may not be able to type Korean.  
-> This isn’t covered in this lab, but you can find instructions online if needed.
-
 ![WebPage_with_post](./img/list-with-post.png)
 
-Next, try using the search function.  
+Next, try using the search function(Type Something, and press "검색").  
 This search performs a combined search across titles and content.
 
 ![WebPage_Search](./img/post-search.png)
 
-Once finished, click “Post List” to go back to the list.  
+Once finished, click “Post List(게시판 목록)” to go back to the list.  
 Now click on your post to view it:
 
 ![WebPage_Detail](./img/post-without-comment.png)
 
-You’ll see the title, nickname, and post content, along with the comment section.
+You’ll see the title, nickname("작성자"), and post content(below "작성일"), along with the comment section("댓글 작성(Write Comment)" & "댓글 목록(Comment List)").
 
-Write a comment and click “Submit Comment”.  
+Write a comment and click “Submit Comment(댓글 작성)”.  
 You’ll see the comment appear like this:
 
 ![WebPage_WithComment](./img/post-with-comment.png)
 
-Let’s edit the post. Click the “Edit” button to open the post editor:
+Let’s edit the post. Click the “Edit(수정)” button to open the post editor:
 
 ![WebPage_Edit](./img/edit-post.png)
 
 Modify the text and enter the correct password to update it.  
 If you enter the wrong password or encounter a server error, an error message will appear.
 
-You can also change the password in the same way.
+You can also change the password in the same way. ("수정"="Edit" / "취소"="Cancel")
 
 ![WebPage_Editing](./img/comment-editing.png)
 
@@ -949,7 +951,7 @@ Once editing is complete, the result will look like this:
 
 ![WebPage_AfterEdit](./img/post-after-edit.png)
 
-Finally, let’s delete the post. Click “Delete” and enter the post password to delete it.
+Finally, let’s delete the post. Click “Delete(삭제)” and enter the post password to delete it.
 
 You’ll see the board return to the empty state:
 
@@ -997,7 +999,7 @@ kubectl -n <your_namespace> exec -it po/postgres-0 -- psql -U myuser -d mydb
 
 > [!note]
 >
-> The command means “execute the following inside the specified Pod.”  
+> The command means “execute the following command inside the specified Pod.”  
 > Options:
 >
 > | Option           | Description                                                                     |
@@ -1013,16 +1015,16 @@ If successful, you’ll see the PostgreSQL CLI prompt:
 To list the tables, enter:
 
 ```sql
-\\d
+\d
 ```
 
 ![psql_tables](./img/psql_tables.png)
 
 > [!TIP]
 >
-> In PostgreSQL, `\\d` lists tables in the connected database.  
-> `\\d <table_name>` shows column details.  
-> `\\d+` provides more detailed metadata.
+> In PostgreSQL, `\d` lists tables in the connected database.  
+> `\d <table_name>` shows column details.  
+> `\d+` provides more detailed metadata.
 
 Here:
 
@@ -1041,7 +1043,7 @@ You should now see the data you submitted through the web interface.
 
 Note: Passwords are hashed, so the raw text is not viewable.
 
-To exit PostgreSQL, type `\\q` or press `Ctrl + D`.
+To exit PostgreSQL, type `\q` or press `Ctrl + D`.
 
 # 6. Lab Review
 
