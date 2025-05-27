@@ -22,7 +22,25 @@
 
 # 1. Concept
 
-## 1-1. (강현 채워넣기 ㄱㄱ)
+## 1-1. Container Image Registry
+
+Container image registry는 container image를 저장하고 배포하기 위한 중앙 저장소의 역할을 합니다.  
+Docker, Kubernetes 환경에서 container image를 push 하고 pull 해오는 대상이라고 생각할 수 있습니다.  
+
+주요 container image registry의 예시는 다음과 같습니다.
+
+1. Docker Hub  
+   Docker에서 운영하는 공개 container image registry입니다. 지금까지 실습에서 주로 사용했습니다.
+2. Amazon ECR  
+   AWS에서 제공하는 container image registry입니다.
+3. GitHub Container Registry (GHCR)  
+   GitHub에서 제공하는 container image registry입니다. 
+4. Harbor  
+   CNCF(Cloud Native Computing Foundation) Graduated Project로서, on-premise 환경에서 registry를 구축하기 위해 사용됩니다.
+5. 자체 구축 Docker Registry  
+   Docker에서 공식적으로 제공하는 registry:2 container image를 바탕으로 구축할 수 있는 registry입니다.
+
+이번 실습에서는 registry:2 container image를 바탕으로, 지금까지 구축한 kubernetes cluster에서 private container registry를 배포합니다.
 
 ## 1-2. 쿠버네티스 클러스터 모니터링의 중요성
 
@@ -95,7 +113,7 @@ Grafana는 다양한 데이터 소스로부터 데이터를 시각화하는 대�
 
 아래의 과정을 따라, 여러분만의 Private Container Image Registry를 간단하게 구축해보겠습니다.
 
-## Container Runtime 설정
+## 2-1. Container Runtime 설정
 
 지금까지 우리는 Docker를 주된 container runtime으로 사용했습니다.
 그러나 Docker를 제외하고도 다양한 container runtime이 존재합니다.
@@ -188,7 +206,7 @@ sudo systemctl restart containerd
 
 ## 이제부터 NUC02, NUC03 사용자는 다시 ssh로 접속한 NUC01에서 실습을 진행합니다.
 
-## Persistent Volume(PV) 생성
+## 2.2 Persistent Volume(PV) 생성
 
 여러분이 직접 build한 container image를 container registry에 push 했을 때, 해당 image에 대한 정보가 영구적으로 파일 시스템에 남아있어야 합니다. 그래야 원할 때 해당 image를 pull 해올 수 있기 때문입니다.
 
@@ -242,7 +260,7 @@ kubectl apply -f container-image-registry-pv.yaml
 kubectl get pv
 ```
 
-## Persistent Volume Claim(PVC) 생성
+## 2.3 Persistent Volume Claim(PVC) 생성
 
 그 다음으로, Persistent volume claim도 생성합니다.
 
@@ -280,7 +298,7 @@ kubectl apply -f container-image-registry-pvc.yaml
 kubectl get pvc -n <your_namespace>
 ```
 
-## Deployment 생성
+## 2.4 Deployment 생성
 
 지금까지는 container image가 push 되었을 때 저장될 스토리지에 대한 설정을 했다면,  
 이제는 실제로 container image를 처리하는 pod를 띄우기 위한 과정을 다룹니다.  
@@ -337,7 +355,7 @@ kubectl apply -f container-image-registry.yaml
 kubectl get deploy -n <your_namespace>
 ```
 
-## Build & Push Container Image
+## 2.5 Build & Push Container Image
 
 이제 container image를 build하고, 구축한 private container image registry로 push할 수 있게 되었습니다.
 
@@ -373,7 +391,7 @@ ls -al /mnt/data/<your_namespace>/registry/docker/registry/v2/repositories
 
 지금까지의 과정에서 문제가 발생하지 않았다면, 위의 명령어를 통해 push된 container image를 확인할 수 있을 것입니다.
 
-## Re-Deployment of Frontend and Backend
+## 2.6 Re-Deployment of Frontend and Backend
 
 이제는 직접 build한 container image로 저번 실습에서 생성한 Frontend, Backend를 다시 배포해보겠습니다.  
 간단하게, 이전에 생성한 Deployment와 관련된 yaml 파일의 container image 필드만 수정하면 됩니다.
