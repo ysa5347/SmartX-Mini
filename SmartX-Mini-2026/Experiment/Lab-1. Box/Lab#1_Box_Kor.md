@@ -168,10 +168,10 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
 
   ![Network Configuration](./img/network_configuration.png)
 
-- 화면 우측 상단을 클릭하여 "Ethernet(enp88s0 or enp89s0) Connected" 부분을 선택합니다. 그리고 "Wired Settings"를 누릅니다.
+- 화면 우측 상단을 클릭하여 "Wired" 부분을 선택합니다. 그리고 "Wired Settings"를 누릅니다.
   ![network setting 1](./img/network_setting1.png)
 
-- Ethernet 부분에서 오른쪽에 있는 톱니바퀴 아이콘을 눌러 설정 탭에 들어갑니다.
+- Wired 부분에서 오른쪽에 있는 톱니바퀴 아이콘을 눌러 설정 탭에 들어갑니다.
   ![network setting 2](./img/network_setting2.png)
 
 - IPv4 탭으로 전환하고, 각자 할당받은 네트워크 정보를 입력합니다.
@@ -187,7 +187,9 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
 
 1. apt Update & Upgrade
    - Lab에서는 패키지 관리자인 apt를 사용합니다. 앞으로 사용할 패키지들을 설치하기 위해 패키지 목록을 최신으로 업데이트하고, 업데이트 가능한 패키지를 실제로 업데이트합니다.
-   - 명령어를 실행하기 위해 터미널을 엽니다. 터미널은 화면 좌하단에 위치한 앱 리스트 아이콘을 누르고, 리스트에서 터미널 아이콘을 눌러 실행할 수 있습니다.
+   - 아래 명령어를 실행하기 위해 터미널을 엽니다. 터미널은 화면 좌하단에 위치한 앱 리스트 아이콘을 누르고, 리스트에서 터미널 아이콘을 누르거나 Ctrl+Alt+T 키를 눌러 실행할 수 있습니다.
+   - 비밀번호를 입력하는 `[sudo] password for gist:`가 뜨면 비밀번호를 입력합니다.
+     이때 입력되는 비밀번호는 터미널에 보이지 않기 때문에 보이지 않더라도 무시하고 입력합니다.
 
    ```bash
    sudo apt update
@@ -196,13 +198,15 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
 
 2. Install vim text editor
    - 앞으로 vim editor를 사용하여 파일의 내용을 수정하겠습니다. vim을 설치합니다.
+   - 설치하겠냐고 물어보는 `Do you want to continue? [Y/n]`에서 Y를 입력하고 엔터를 누릅니다. (기본값은 Y여서 바로 엔터를 눌러도 됩니다.)
 
    ```bash
    sudo apt install vim
    ```
 
 3. Install net-tools & ifupdown
-   - network 관련 유틸리티를 실행하기 위해 net-tools와 ifupdown을 설치합니다. 그리고 `ifconfig -a` 명령어를 통해 network interface 정보를 확인합니다.
+   - network 관련 유틸리티를 실행하기 위해 net-tools와 ifupdown을 설치합니다.
+     그리고 `ifconfig -a` 명령어를 통해 network interface 정보를 확인합니다.
 
    ```bash
    sudo apt install -y net-tools ifupdown
@@ -229,7 +233,7 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
    sudo systemctl stop systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
    sudo systemctl disable systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
    sudo systemctl mask systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
-   sudo apt-get --assume-yes purge nplan netplan.io
+   sudo apt --assume-yes purge netplan.io
    ```
 
    - DNS configuration
@@ -451,12 +455,13 @@ sudo systemctl restart networking
   ![Install Ubuntu](./img/install_ubuntu.png)
 
   설치 단계 (Enter키와 방향키를 사용하여 설치를 진행합니다.)
-  1. 언어 설정 화면에서 English로 설정합니다.
-  2. "Keyboard configuration" 화면에서는 모든 부분을 English(US)로 설정합니다.
-  3. "Choose the type of installation" 화면에서는 "Ubuntu Server" 부분에 (X) 표시가 되어있는지 확인하고 Done을 누릅니다.
-  4. "Network configuration" 화면에 진입하여 아래와 같이 "Edit IPv4"를 눌러줍니다.
+  1. Try or Install Ubuntu Server를 선택합니다.
+  2. 언어 설정 화면에서 English로 설정합니다.
+  3. "Keyboard configuration" 화면에서는 모든 부분을 English(US)로 설정합니다.
+  4. "Choose the type of installation" 화면에서는 "Ubuntu Server" 부분에 (X) 표시가 되어있는지 확인하고 Done을 누릅니다.
+  5. "Network configuration" 화면에 진입하여 아래와 같이 "Edit IPv4"를 눌러줍니다.
      ![Ubuntu Network](./img/ubuntu_network.png)
-  5. 아래 내용을 참고하여 설정해줍니다.(VM IP로 종이에 적힌 Extra IP 주소를 사용합니다.)
+  6. 아래 내용을 참고하여 설정해줍니다.(VM IP로 종이에 적힌 Extra IP 주소를 사용합니다.)
 
      > IPv4 Method → Manual
      >
@@ -469,21 +474,21 @@ sudo systemctl restart networking
 
      그리고 위의 `< VM IP(Extra IP) >` 작성 시에 **괄호는 지우고** 172.29.0.X의 형식으로 작성해야 합니다.
 
-  6. "Proxy configuration" 화면에서는 아무것도 입력하지 않고 넘어갑니다.
-  7. "Ubuntu archive mirror configuration" 화면에서도 Done을 눌러 넘어갑니다.
-  8. ⚠️ **(중요)** "Installer update available" 화면에서는 "Continue without updating"을 선택합니다.
-  9. "Guided storage configuration", "Storage configuration" 화면에서도 내용을 수정하지 않고 Done을 계속 눌러서 넘어갑니다. 마지막에 "Confirm destructive action" 창이 뜨면 Continue를 눌러 넘어갑니다.
-  10. "Profile configuration" 화면에서는 아래와 같이 입력합니다.
+  7. "Proxy configuration" 화면에서는 아무것도 입력하지 않고 넘어갑니다.
+  8. "Ubuntu archive mirror configuration" 화면에서도 Done을 눌러 넘어갑니다.
+  9. ⚠️ **(중요)** "Installer update available" 화면에서는 "Continue without updating"을 선택합니다.
+  10. "Guided storage configuration", "Storage configuration" 화면에서도 내용을 수정하지 않고 Done을 계속 눌러서 넘어갑니다. 마지막에 "Confirm destructive action" 창이 뜨면 Continue를 눌러 넘어갑니다.
+  11. "Profile configuration" 화면에서는 아래와 같이 입력합니다.
       - Your name: vm
       - Your servers name: vm<VM IP주소의 마지막 3자리 숫자>  
         -> ex. XXX.XXX.XXX.179의 경우, vm179
       - Pick a username: vm
       - 비밀번호의 경우, NUC의 비밀번호와 동일하게 설정합니다.
-  11. "Upgrade to Ubuntu Pro" 화면이 나오면 "Skip for now"에 (X) 표시가 되어있는지 확인하고 넘어갑니다.
-  12. "SSH configuration" 화면이 나오면 아무것도 수정하지 않고 Done을 눌러 넘어갑니다.
-  13. "Featured server snaps" 화면이 나오면 아무것도 선택하지 않고 Done을 눌러 넘어갑니다.
-  14. 설치 진행 상황을 볼 수 있는 화면이 나옵니다.
-  15. 설치가 완료되어 아래와 같이 화면이 나오면 `Reboot Now` 버튼이 보일 것입니다. 그러나, ⚠️ **버튼을 누르지 않고 아래의 내용을 따라주시길 바랍니다**.
+  12. "Upgrade to Ubuntu Pro" 화면이 나오면 "Skip for now"에 (X) 표시가 되어있는지 확인하고 넘어갑니다.
+  13. "SSH configuration" 화면이 나오면 아무것도 수정하지 않고 Done을 눌러 넘어갑니다.
+  14. "Featured server snaps" 화면이 나오면 아무것도 선택하지 않고 Done을 눌러 넘어갑니다.
+  15. 설치 진행 상황을 볼 수 있는 화면이 나옵니다.
+  16. 설치가 완료되어 아래와 같이 화면이 나오면 `Reboot Now` 버튼이 보일 것입니다. 그러나, ⚠️ **버튼을 누르지 않고 아래의 내용을 따라주시길 바랍니다**.
       ![Ubuntu Network](./img/ubuntu-installation-done.png)
 
 - Installation Completed
@@ -527,19 +532,21 @@ sudo apt install -y ca-certificates curl gnupg lsb-release
 Docker 공식 GPG Key를 추가합니다.
 
 ```bash
-sudo mkdir -p /etc/apt/keyrings
-
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-    sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 ```
 
 apt source list에 Docker 저장소를 추가합니다.
 
 ```bash
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 ```
 
 Docker를 설치합니다.
@@ -567,6 +574,8 @@ EOF
 ```
 
 /etc/systemd/system/docker.service.d 디렉터리를 생성합니다.
+
+<!-- NOTE: 직접 daemon 만들어줄 필요 없음 -->
 
 ```bash
 sudo mkdir -p /etc/systemd/system/docker.service.d
