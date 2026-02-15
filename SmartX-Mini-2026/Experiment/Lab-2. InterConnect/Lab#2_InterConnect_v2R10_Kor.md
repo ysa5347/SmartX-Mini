@@ -885,18 +885,11 @@ cd ~/SmartX-Mini/SmartX-Box/raspbian-flume
 
 `Dockerfile`을 열어 내용이 하단과 동일한지 확인해주십시오.
 
-> [!caution]
->
-> 만약 Image가 `FROM balenalib/rpi-raspbian:stretch`로 지정된 경우, 반드시 이를 `FROM balenalib/rpi-raspbian:buster`로 수정하시기 바랍니다.
->
-> `stretch` 이미지에 포함된 APT 레포지토리 서버 중 일부가 운영을 중단하였기 때문에 404 Error와 함께 Build 과정이 실패하게 됩니다.
-
 ```dockerfile
 FROM balenalib/rpi-raspbian:buster
 LABEL "maintainer"="Seungryong Kim <srkim@nm.gist.ac.kr>"
 
-# (Optional; to speed-up the build procedure) Change apt repository to kaist mirror server.
-RUN sed -i 's@archive.raspbian.org@ftp.kaist.ac.kr/raspbian@g' /etc/apt/sources.list
+RUN sed -i 's@archive.raspbian.org@legacy.raspbian.org@g' /etc/apt/sources.list
 
 #Update & Install wget, vim
 RUN sudo apt update

@@ -903,8 +903,7 @@ Open the `Dockerfile` and ensure the contents match the following configuration:
 FROM balenalib/rpi-raspbian:buster
 LABEL "maintainer"="Seungryong Kim <srkim@nm.gist.ac.kr>"
 
-# (Optional; to speed-up the build procedure) Change apt repository to KAIST mirror server.
-RUN sed -i 's@archive.raspbian.org@ftp.kaist.ac.kr/raspbian@g' /etc/apt/sources.list
+RUN sed -i 's@archive.raspbian.org@legacy.raspbian.org@g' /etc/apt/sources.list
 
 #Update & Install wget, vim
 RUN sudo apt update
