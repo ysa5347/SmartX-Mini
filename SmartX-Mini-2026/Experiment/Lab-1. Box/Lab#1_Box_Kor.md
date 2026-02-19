@@ -26,7 +26,7 @@ Box Lab에서는 \*베어 메탈에 운영체제(OS)를 직접 설치해보고
 >
 > 1. 특정 OS 환경에서만 작동하는 application을 실행해야 하는 경우  
 >    오래 전에 개발되어 특정 OS 환경에서만 작동하는 프로그램을 실행해야 하는 경우 또는 개발자의 의도로 인해 특정 OS에서만 작동하도록 설계된 프로그램을 실행하는 경우, VM을 사용해야 합니다.
-> 2. 보안이 중요한 환경  
+> 2. 보안이 중요한 환경
 >    VM은 container와는 다르게 VM 간에 OS를 공유하지 않기 때문에, 각각의 환경 사이의 격리 수준이 더 높습니다. 금융 데이터를 다루는 서비스와 같이 높은 수준의 보안이 필요한 경우에는 container보다는 VM이 더 적절할 수 있습니다.
 >
 > 이번 Lab에서는 가상 머신을 생성하기 위해 리눅스에 기본적으로 탑재되어있는 KVM Hypervisor를 사용할 것입니다.
@@ -89,8 +89,8 @@ Box Lab에서는 \*베어 메탈에 운영체제(OS)를 직접 설치해보고
 > 수강생들 중, Playground Lab에서 OS를 설치한 경우에는 OS Installation 부분을 생략합니다.
 
 Lab에서 사용할 Host OS는 다음과 같습니다. 제공받은 설치 USB를 사용하여 OS를 설치하면 됩니다.  
-OS : Ubuntu Desktop 22.04 LTS(64bit)  
-참고: Download Site - <https://releases.ubuntu.com/22.04/>
+OS : Ubuntu Desktop 24.04 LTS(64bit)  
+참고: Download Site - <https://releases.ubuntu.com/24.04/>
 
 ### 2-1-1. Boot Configuration
 
@@ -101,23 +101,27 @@ OS : Ubuntu Desktop 22.04 LTS(64bit)
 
 ### 2-1-2. Installation
 
-1. Install Ubuntu를 선택합니다. (Try Ubuntu X) 언어는 English로 진행해야합니다.
-2. Keyboard layout 설정 단계에서도 "English(US)"로 설정합니다.
-3. Wireless 탭이 뜨면, "I don't want to connect to a Wi-Fi network right now"를 선택하고 넘어갑니다.
-4. Updates and other software 단계에서 "What apps would you like to install to start with?" 영역에서 "Minimal installation"을 선택하고 다음 단계로 넘어갑니다.
-5. Installation type 단계에서 "Erase disk and install Ubuntu"를 선택하고 "Install now" 버튼을 누릅니다.
-6. Write the changes to disks? 창이 뜨면 Continue를 눌러 계속 진행합니다.
-7. Location 설정 화면에서 "Seoul"을 선택합니다.
-8. User 정보와 Computer 정보를 입력하는 "Who are you" 단계에 진입했다면 다음과 같이 설정합니다.
+1. 언어는 English로 진행합니다.
+2. Accessibility in Ubuntu 섹션은 넘어갑니다.
+3. Keyboard layout 설정 단계에서도 "English(US)"로 설정합니다.
+4. Install Ubuntu를 선택합니다. (Try Ubuntu X)
+5. Connect to the internet 탭이 뜨면, "Do not connect to the internet"을 선택하고 넘어갑니다.
+6. How would you like to install Ubuntu 탭에서, "Interactive Installation"을 선택하고 넘어갑니다.
+7. What apps would you like to install to start with? 영역에서 "Default installation"을 선택하고 다음 단계로 넘어갑니다.
+8. Install recommended proprietary software? 영역에서 바로 Next를 눌러 넘어갑니다.
+9. How do you want to install Ubuntu? 영역에서 "Erase disk and install Ubuntu"를 선택하고 다음 단계로 넘어갑니다.
+10. Write the changes to disks? 창이 뜨면 Continue를 눌러 계속 진행합니다.
+11. User 정보와 Computer 정보를 입력하는 "Who are you" 단계에 진입했다면 다음과 같이 설정합니다.
+
    - Your name: gist
    - Your computer's name: nuc<NUC IP주소의 마지막 3자리 숫자>  
      -> ex. XXX.XXX.XXX.109의 경우, nuc109
    - Pick a username: gist
    - 비밀번호의 경우, 조교의 안내에 따라 설정을 진행합니다.
-
-9. 모든 설정이 완료되었다면 버튼을 눌러 최종 설치를 진행합니다.
-10. 설치가 완료되면, "Restart now" 버튼을 눌러 NUC을 다시 시작합니다.
-11. 재시작 과정에서 "Please remove the installation medium, then press ENTER" 메세지가 보이면, 설치 USB를 제거한 뒤에 ENTER 키를 누릅니다.
+12. Location 설정 화면에서 "Seoul"을 선택합니다.
+13. 모든 설정이 완료되었다면 버튼을 눌러 최종 설치를 진행합니다.
+14. 설치가 완료되면, "Restart now" 버튼을 눌러 NUC을 다시 시작합니다.
+15. 재시작 과정에서 "Please remove the installation medium, then press ENTER" 메세지가 보이면, 설치 USB를 제거한 뒤에 ENTER 키를 누릅니다.
 
   <details>
     <summary>에러 발생 시 참고(정상 설치가 되었다면 이 부분은 생략합니다.)</summary>
@@ -167,6 +171,13 @@ OS : Ubuntu Desktop 22.04 LTS(64bit)
 
 ## 2-2. NUC: Network Configuration using Virtual Switch
 
+> [!WARNING]
+> Ubuntu Desktop 24.04로 전환할 때 아래 항목에서 문제가 발생할 수 있으니 먼저 확인합니다.
+> 1. `sudo apt-get purge netplan.io`를 수행하면 부팅 후 네트워크가 비정상 동작할 수 있습니다.
+> 2. NetworkManager와 ifupdown이 동시에 인터페이스를 제어하면 IP 충돌/링크 재기동이 발생할 수 있습니다.
+> 3. `ovs-docker` 스크립트가 없으면 `add-port` 단계가 실패할 수 있습니다.
+> 4. `kvm` 명령이 없는 환경에서는 `qemu-system-x86_64`로 대체해야 합니다.
+
 > [!CAUTION]  
 > **⚠️ (중요. 로그인 뒤에 Ubuntu를 업데이트할 것인지 묻는 창이 뜬다면 반드시 Don't Upgrade를 선택해야합니다!) ⚠️**
 
@@ -207,14 +218,17 @@ OS : Ubuntu Desktop 22.04 LTS(64bit)
 
    ![Ovs Vsctl Show](./img/ovs_vsctl_show.png)
 
-5. Disable netplan
-   - Open vSwitch(OVS)를 기반으로 수동 네트워크 관리 방법을 사용하기 위해서 systemd-networkd 및 Netplan을 비활성화하고 제거합니다.
+5. Change default network manager (Ubuntu 24.04)
+
+   - Ubuntu 24.04에서는 Netplan 패키지를 삭제하지 않고 유지합니다. 대신 OVS + ifupdown 수동 설정 충돌을 피하기 위해 기본 네트워크 매니저를 비활성화합니다.
+   - 아래 작업은 네트워크가 잠시 끊길 수 있으므로 **로컬 콘솔(NUC 직접 화면)**에서 진행합니다.
 
    ```bash
    sudo systemctl stop systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
    sudo systemctl disable systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
    sudo systemctl mask systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
-   sudo apt-get --assume-yes purge nplan netplan.io
+   sudo systemctl stop NetworkManager
+   sudo systemctl disable NetworkManager
    ```
 
    - DNS configuration
@@ -376,7 +390,8 @@ sudo systemctl restart networking
 
 - Install required packages to set up and manage KVM
 
-  KVM을 설정하고 관리하기 위한 dependency를 설치하고, VM 안에서 사용할 Ubuntu 22.04.5 image를 다운받습니다.
+  KVM을 설정하고 관리하기 위한 dependency를 설치하고, VM 안에서 사용할 Ubuntu 24.04 LTS image를 다운받습니다.
+
   - qemu-kvm: QEMU(Quick Emulator) 기반으로 KVM(커널 기반 가상화)을 지원합니다.
   - libvirt-daemon-system: libvirtd 데몬을 실행하여 가상 머신을 관리할 수 있도록 지원합니다.
   - libvirt-clients: VM 관리 명령어를 제공합니다.
@@ -387,15 +402,17 @@ sudo systemctl restart networking
   # upgrade KVM
   # qemu is open-source emulator
 
-  wget https://ftp.lanet.kr/ubuntu-releases/22.04.5/ubuntu-22.04.5-live-server-amd64.iso
+  wget https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso
   ```
+
+  - 다운로드 파일명이 `ubuntu-24.04.x-live-server-amd64.iso`로 배포되는 경우, 실제 파일명에 맞게 명령어와 아래 `-cdrom` 값을 동일하게 수정합니다.
 
 - Prepare for Ubuntu VM
 
   VM에서 사용할 가상 디스크 image를 만들기 위해, 아래의 명령어를 실행합니다.
 
   ```bash
-  sudo qemu-img create vFunction22.img -f qcow2 10G
+  sudo qemu-img create vFunction24.img -f qcow2 10G
   ```
 
   아래의 명령어를 입력하여 VM을 백그라운드 모드로 실행합니다.
@@ -407,8 +424,8 @@ sudo systemctl restart networking
   -smp cpus=4,maxcpus=4 \
   -device virtio-net-pci,netdev=net0 \
   -netdev tap,id=net0,ifname=vport_vFunction,script=no \
-  -boot d vFunction22.img \
-  -cdrom ubuntu-22.04.5-live-server-amd64.iso \
+  -boot d vFunction24.img \
+  -cdrom ubuntu-24.04-live-server-amd64.iso \
   -vnc :5 -daemonize \
   -monitor telnet:127.0.0.1:3010,server,nowait,ipv4 \
   -cpu host
@@ -486,7 +503,7 @@ sudo kvm -m 1024 -name tt \
 -smp cpus=2,maxcpus=2 \
 -device virtio-net-pci,netdev=net0 \
 -netdev tap,id=net0,ifname=vport_vFunction,script=no \
--boot d vFunction22.img
+-boot d vFunction24.img
 ```
 
 ## 2-4. OVS connects with KVM
@@ -572,10 +589,10 @@ sudo docker run hello-world
 
 ## 2-7. Make Container
 
-c1이라는 이름의 container를 생성해봅니다. 이 container는 ubuntu:22.04 이미지를 바탕으로 생성되며, 최초 실행 시, /bin/bash가 실행되도록 합니다. `--net=none` 옵션을 사용하여 container가 네트워크에 연결되지 않도록 합니다.
+c1이라는 이름의 container를 생성해봅니다. 이 container는 ubuntu:24.04 이미지를 바탕으로 생성되며, 최초 실행 시, /bin/bash가 실행되도록 합니다. `--net=none` 옵션을 사용하여 container가 네트워크에 연결되지 않도록 합니다.
 
 ```bash
-sudo docker run -it --net=none --name c1 ubuntu:22.04 /bin/bash
+sudo docker run -it --net=none --name c1 ubuntu:24.04 /bin/bash
 ```
 
 ctrl + p, q를 누르면 container를 종료하지 않고 container 밖으로 나올 수 있습니다.
@@ -588,6 +605,9 @@ ctrl + p, q를 누르면 container를 종료하지 않고 container 밖으로 �
 
 **도커 외부에서**, 즉 Host machine에서 하단의 명령어를 실행합니다.  
 이 명령어는 **Open vSwitch(OVS)**를 사용하여 Docker container(c1)에 특정 네트워크 인터페이스(veno1)를 추가하고, 이를 가상 브리지(br0)에 연결합니다.
+
+> [!CAUTION]
+> Ubuntu 24.04 환경에서 `ovs-docker`가 없다면 아래 명령이 실패할 수 있습니다. 먼저 `which ovs-docker`로 스크립트 존재 여부를 확인하고, 없으면 `/usr/share/openvswitch/scripts/ovs-docker` 경로로 실행합니다.
 
 ```bash
 sudo docker start c1
