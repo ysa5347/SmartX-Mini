@@ -17,7 +17,7 @@
 
 ## 0-2. 모니터링 시스템이 왜 필요한가?
 
-시스템의 성능과 안정성을 유지하기 위해서는 실시간 모니터링이 필수적입니다. 시스템에서 발생한 장애를 신속하게 감지하고 대응할 수 있어야 하며, 시스템에서 발생한 시계열 데이터 분석을 통해 성능 최적화와 용량 계획을 수립할 수 있습니다. 특히, 분산 시스템에서는 다양한 노드에서 수집된 데이터를 종합적으로 분석해야 하므로, 이를 효과적으로 저장하고 시각화하는 시스템이 필요합니다. 이번 Lab에서는 `Flume`과 `Kafka`를 활용한 데이터 수집, `InfluxDB`를 통한 시계열 데이터 저장, 그리고 `Chronograf`를 이용한 데이터 시각화를 통해 모니터링 시스템 구축 방법을 익힙니다.
+시스템의 성능과 안정성을 유지하기 위해서는 실시간 모니터링이 필수적입니다. 시스템에서 발생한 장애를 신속하게 감지하고 대응할 수 있어야 하며, 시스템에서 발생한 시계열 데이터 분석을 통해 성능 최적화와 용량 계획을 수립할 수 있습니다. 특히, 분산 시스템에서는 다양한 노드에서 수집된 데이터를 종합적으로 분석해야 하므로, 이를 효과적으로 저장하고 시각화하는 시스템이 필요합니다. 이번 Lab에서는 `Fluentd`와 `Kafka`를 활용한 데이터 수집, `InfluxDB`를 통한 시계열 데이터 저장, 그리고 `Chronograf`를 이용한 데이터 시각화를 통해 모니터링 시스템 구축 방법을 익힙니다.
 
 ## 0-3. TSDB (Time Series Database)
 
@@ -59,8 +59,14 @@ Chronograf는 InfluxDB 시계열 데이터를 웹에서 조회하고 시각화�
 sudo docker rm -f influxdb 2>/dev/null || true
 ```
 
+아래 명령어로 **InfluxDB 2.8** 컨테이너에 환경변수로 넣어줄 InfluxDB Admin Password와 Admin Token을 미리 선언합니다.
+
+```bash
+export INFLUXDB_ADMIN_PASSWORD='SxMiniAdmin!2026'
+export INFLUXDB_ADMIN_TOKEN="$(openssl rand -hex 32)"
+```
+
 아래 명령어로 **InfluxDB 2.8** 컨테이너를 실행합니다.
-`<>` 값은 실습 환경에 맞게 변경하세요.
 
 ```bash
 sudo docker run -d \
@@ -69,10 +75,10 @@ sudo docker run -d \
   -v influxdb2-data:/var/lib/influxdb2 \
   -e DOCKER_INFLUXDB_INIT_MODE=setup \
   -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
-  -e DOCKER_INFLUXDB_INIT_PASSWORD=<INFLUXDB_ADMIN_PASSWORD> \
+  -e DOCKER_INFLUXDB_INIT_PASSWORD="$INFLUXDB_ADMIN_PASSWORD" \
   -e DOCKER_INFLUXDB_INIT_ORG=GIST \
   -e DOCKER_INFLUXDB_INIT_BUCKET=Labs \
-  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=<INFLUXDB_ADMIN_TOKEN> \
+  -e DOCKER_INFLUXDB_INIT_ADMIN_TOKEN="$INFLUXDB_ADMIN_TOKEN" \
   influxdb:2.8
 ```
 
@@ -82,39 +88,46 @@ InfluxDB는 **8086번 port**를 사용하며, `--net host` 옵션을 사용했�
 
 `broker_to_influxdb.py`와 Chronograf의 기존 쿼리(`Labs.autogen`)를 그대로 사용하기 위해 v1 호환 구성을 추가합니다.
 
-먼저 `Labs` bucket ID를 확인합니다.
-
+먼저 아래 명령으로 `Labs` bucket ID를 확인하고, 환경변수를 선언합니다.
 ```bash
-sudo docker exec influxdb influx bucket list --name Labs
+LABS_BUCKET_ID=$(sudo docker exec influxdb influx bucket list --name Labs | awk 'NR==2 {print $1}')
 ```
 
-출력에서 `Labs`의 ID를 `<LABS_BUCKET_ID>`로 사용해 DBRP 매핑을 생성합니다.
+출력에서 `Labs`의 ID를 위에서 선언한 `LABS_BUCKET_ID`로 사용해 DBRP 매핑을 생성합니다.
 
 ```bash
 sudo docker exec influxdb influx v1 dbrp create \
   --db Labs \
   --rp autogen \
   --default \
-  --bucket-id <LABS_BUCKET_ID> \
+  --bucket-id $LABS_BUCKET_ID \
   --org GIST \
-  --token <INFLUXDB_ADMIN_TOKEN>
+  --token $INFLUXDB_ADMIN_TOKEN
 ```
-
-마지막으로 v1 호환 인증 계정을 생성합니다.
-
+DBRP 매핑이 생성되면 아래와 같이 출력됩니다.
 ```bash
-sudo docker exec influxdb influx v1 auth create \
-  --username tower \
-  --password <INFLUXDB_V1_PASSWORD> \
-  --read-bucket <LABS_BUCKET_ID> \
-  --write-bucket <LABS_BUCKET_ID> \
-  --org GIST \
-  --token <INFLUXDB_ADMIN_TOKEN>
+ID                      Database        Bucket ID               Retention Policy        Default Organization ID
+104bca211b4ac000        Labs            a239a82440d4728d        autogen                 true    1b30065610067f7a
 ```
 
+마지막으로 아래 명령을 실행하여 v1 호환 인증 계정을 생성합니다.
 > [!tip]
 >
-> `<INFLUXDB_V1_PASSWORD>`는 URL 쿼리 문자열에 들어가므로 영문/숫자 조합으로 설정하는 것을 권장합니다.
+> `INFLUXDB_V1_PASSWORD`는 URL 쿼리 문자열에 들어가므로 영문/숫자 조합으로 설정하는 것을 권장합니다.
+
+```bash
+export INFLUXDB_V1_USER=tower
+export INFLUXDB_V1_PASSWORD='SxMiniV12026'
+
+sudo docker exec influxdb influx v1 auth create \
+  --username tower \
+  --password $INFLUXDB_V1_PASSWORD \
+  --read-bucket $LABS_BUCKET_ID \
+  --write-bucket $LABS_BUCKET_ID \
+  --org GIST \
+  --token $INFLUXDB_ADMIN_TOKEN
+```
+
 
 ## 1-2. Chronograf Container 생성 및 실행 ( in NUC )
 
@@ -124,6 +137,12 @@ InfluxDB에 접근할 수 있는 url을 argument로 입력해 **chronograf conta
 sudo docker rm -f chronograf 2>/dev/null || true
 sudo docker run -d -p 8888:8888 --name chronograf chronograf --influxdb-url http://<NUC IP>:8086
 ```
+
+이후 아래 명령으로 chronograf container가 정상적으로 실행되고 있는지 확인합니다.
+```bash
+sudo docker logs --tail 100 chronograf
+```
+![alt text](img/chronograf_run.png)
 
 - **`-p 8888:8888`의 역할**
   - host의 8888번 port를 container의 8888번 port과 mapping해줍니다.
@@ -140,57 +159,34 @@ sudo docker run -d -p 8888:8888 --name chronograf chronograf --influxdb-url http
     - 즉, container 내부에서 8888번 포트를 열면, host에서도 동일한 8888번 포트를 사용할 수 있습니다.
     - 별도의 port mapping 설정이 필요하지 않습니다.
 
-아래 그림처럼 아무런 반응이 없는 상태가 지속된다면, 잘 실행된 것입니다.
+## 1-3. Python venv 및 packages 설치하기 ( in NUC )
 
-![chronograf_run.png](./img/chronograf_run.png)
+### 1-3-1. python-pip / venv 모듈 설치
 
-## 1-3. python-pip, python packages 설치하기 ( in NUC )
+Python 3.12 환경(Externally Managed Environment)에서는 시스템 전역에 `pip install`이 제한될 수 있으므로, 아래처럼 `venv`를 함께 설치합니다.
 
-### 1-3-1. python-pip 설치
+```bash
+sudo apt-get install -y libcurl4 openssl curl python3-pip python3-venv
+```
 
-이제 새로운 터미널을 열고 패키지 설치를 위해 아래 명령어를 터미널에서 실행합니다.
+### 1-3-2. 가상환경 생성 및 Python Packages 설치
+
+```bash
+python3 -m venv ~/venvs/smartx-mini
+source ~/venvs/smartx-mini/bin/activate
+python -m pip install --upgrade pip
+pip install requests kafka-python influxdb msgpack
+```
+
+필요 시 설치 버전을 확인합니다.
+
+```bash
+pip show requests kafka-python influxdb msgpack
+```
 
 > [!tip]
 >
-> **새로운 터미널 열기 `Ctrl+Shift+t`**
-
-```bash
-sudo apt-get install -y libcurl4 openssl curl python3-pip
-```
-
-<details>
-<summary>Package Versions (Expand)</summary>
-
-#### NUC
-
-|   Package   |      Version       |
-| :---------: | :----------------: |
-|  libcurl4   | 7.68.0-1ubuntu2.15 |
-|   openssl   | 1.1.1f-1ubuntu2.16 |
-|    curl     | 7.68.0-1ubuntu2.15 |
-| python3-pip | 20.0.2-5ubuntu1.7  |
-
-</details>
-
-### 1-3-2. Python Packages 설치
-
-```bash
-sudo pip install requests kafka-python influxdb msgpack
-```
-
-<details>
-<summary>Package Versions (Expand)</summary>
-
-#### Python
-
-|   Package    | Version |
-| :----------: | :-----: |
-|   requests   | 2.22.0  |
-| kafka-python |  2.0.2  |
-|   influxdb   |  5.3.1  |
-|   msgpack    |  1.0.4  |
-
-</details>
+> 새 터미널을 열 때마다 `source ~/venvs/smartx-mini/bin/activate`를 먼저 실행한 뒤 Python 명령을 사용하세요.
 
 <br>
 
@@ -234,7 +230,7 @@ sudo docker exec broker0 /kafka/bin/kafka-topics.sh --create \
   --topic resource
 ```
 
-## 1-5. Flume container ( in PI )
+## 1-5. Fluentd container ( in PI )
 
 ### 1-5-1. `/etc/hosts`
 
@@ -255,22 +251,21 @@ sudo vim /etc/hosts
 <PI_IP> <PI_HOSTNAME>
 ```
 
-### 1-5-2. Flume container 실행
+### 1-5-2. Fluentd container 실행
 
-아래 명령어를 실행해 flume container을 실행하고, container 내부에 접근해주세요
-
-```bash
-# Execute Container
-sudo docker start flume
-# Access to Container
-sudo docker attach flume
-```
-
-Flume을 실행해주세요
+Lab 2에서 생성한 `pi-fluentd` 이미지를 사용해 Fluentd를 실행합니다.
 
 ```bash
-bin/flume-ng agent --conf conf --conf-file conf/flume-conf.properties --name agent -Dflume.root.logger=INFO,console
+sudo docker run -it --rm \
+  --net=host \
+  --security-opt seccomp=unconfined \
+  --name fluentd \
+  pi-fluentd
 ```
+
+> [!note]
+>
+> 만약 `pi-fluentd` 이미지가 없다면, Lab 2의 `2-5-2. (NUC) Fluentd 이미지 크로스빌드`와 `2-5-3. (PI) 이미지 로드 및 Fluentd 실행` 절차를 먼저 수행하세요.
 
 ## 1-6. Python File `broker_to_influxdb.py` ( in NUC )
 
@@ -289,8 +284,9 @@ vim ~/SmartX-Mini/SmartX-Box/ubuntu-kafkatodb/broker_to_influxdb.py
 이 파일에서 아래 3개 항목을 수정해주세요.
 
 1. Kafka Bootstrap Server를 KRaft Broker로 변경
-2. InfluxDB write URL에 v1 인증 파라미터 추가
+2. InfluxDB write URL에 v1 인증 파라미터 추가 (스크립트는 `INFLUXDB_V1_USER`, `INFLUXDB_V1_PASSWORD` 환경변수 사용)
 3. InfluxDB 2.8에서 사전 생성한 bucket을 사용하도록 `CREATE DATABASE` 호출 제거
+4. Lab 2의 Fluentd는 JSON 메시지를 전송하므로, `str2[10]` 같은 고정 인덱스 파싱 대신 키 기반 파싱을 사용
 
 ```python
 # before
@@ -303,7 +299,8 @@ cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '...'"
 consumer = KafkaConsumer('resource',bootstrap_servers=['localhost:9090'])
 consumer = KafkaConsumer('resource', bootstrap_servers=['localhost:9090'])
 # Labs bucket은 1-1에서 이미 생성하므로 CREATE DATABASE 호출은 제거(또는 주석 처리)
-cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=<INFLUXDB_V1_PASSWORD>' --data-binary '...'"
+# write URL의 u/p는 환경변수(INFLUXDB_V1_USER, INFLUXDB_V1_PASSWORD)로 처리
+cmd = "curl -sS -XPOST 'http://localhost:8086/write?db=Labs&u=<INFLUXDB_V1_USER>&p=<INFLUXDB_V1_PASSWORD>' --data-binary '...'"
 ```
 
 ![broker_to_influxdb python file](https://user-images.githubusercontent.com/82452337/160814546-da543a58-e6b6-49cb-bdb1-19aa2de9c1fb.png)
@@ -315,7 +312,14 @@ cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=<INFLUXDB_V
 ```bash
 sudo sysctl -w fs.file-max=100000
 ulimit -S -n 2048
-python3 ~/SmartX-Mini/SmartX-Box/ubuntu-kafkatodb/broker_to_influxdb.py
+source ~/venvs/smartx-mini/bin/activate
+
+
+# optional: v1 인증/DBRP 매핑 확인
+curl -sS -XPOST "http://localhost:8086/query?u=${INFLUXDB_V1_USER}&p=${INFLUXDB_V1_PASSWORD}&db=Labs" \
+  --data-urlencode "q=SHOW MEASUREMENTS"
+
+python ~/SmartX-Mini/SmartX-Box/ubuntu-kafkatodb/broker_to_influxdb.py
 ```
 
 ## 1-7. Chronograf 대시보드 ( in NUC )
@@ -328,20 +332,28 @@ python3 ~/SmartX-Mini/SmartX-Box/ubuntu-kafkatodb/broker_to_influxdb.py
 
 ![chronograf-1](./img/chronograf-1.png)
 
-### 1-7-2. 대시보드 생성하기
+### 1-7-2. Config - Connections 수정하기
 
-![chronograf-2](./img/chronograf-2.png)
+Chronograf Config에서 Default Connection을 먼저 수정하여 InfluxDB 인증 정보를 추가합니다. 위와 같이 Configuration --> Connections 아래에 위치한 default connection을 클릭합니다.
 
-### 1-7-3. 데이터 Source 추가하기
+<img src="./img/chronograf-config-1.png" alt="chronograf-config-1">
 
-![chronograf-3](./img/chronograf-3.png)
+그리고 이전에 InfluxDB container를 올릴 때 사용한 `INFLUXDB_V1_USER`, `INFLUXDB_V1_PASSWORD`를 각각 `username`, `password` 필드에 입력합니다.
 
-Data Source를 추가할 때 아래 항목을 입력합니다.
+<img src="./img/chronograf-config-2.png" alt="chronograf-config-2">
+
+Dashboard 섹션에서 InfluxDB를 클릭하고 넘어간 뒤, Kapacitor 설정은 skip 합니다. 
+
+<img src="./img/chronograf-config-3.png" alt="chronograf-config-3">
+
 
 - URL: `http://<NUC IP>:8086`
-- Database: `Labs`
 - Username: `tower`
 - Password: `<INFLUXDB_V1_PASSWORD>`
+
+### 1-7-3. 대시보드 생성하기
+
+<img src="./img/chronograf-2.png" alt="chronograf-2">
 
 ### 1-7-4. 쿼리 등록하기
 
@@ -350,6 +362,23 @@ Data Source를 추가할 때 아래 항목을 입력합니다.
 ```sql
 SELECT "memory" FROM "Labs"."autogen"."labs" WHERE time > :dashboardTime:
 ```
+
+> [!tip]
+>
+> `Submit Query`에서 `received status code 401 ... unauthorized access`가 나오면 아래 순서로 확인하세요.
+>
+> 1. 먼저 CLI에서 v1 인증이 정상인지 확인
+>    ```bash
+>    curl -i -XPOST "http://localhost:8086/query?db=Labs&u=tower&p=<INFLUXDB_V1_PASSWORD>" \
+>      --data-urlencode "q=SHOW MEASUREMENTS"
+>    ```
+> 2. `200 OK`이면 Chronograf의 `Configuration -> Connections`에서 default connection을 다시 생성
+>    - URL: `http://<NUC IP>:8086`
+>    - Username: `tower`
+>    - Password: `<INFLUXDB_V1_PASSWORD>`
+> 3. Query 화면 상단에서 방금 만든 Config가 선택되었는지 확인 후 다시 `Submit Query`
+> <img src="./img/chronograf-config-4.png" alt="chronograf-config-4">
+>
 
 ### 1-7-5. 모니터링 확인하기
 
@@ -400,6 +429,6 @@ docker run --rm -it busybox sh -c "while true; do :; done"
 1. InfluxDB 2.8 컨테이너 실행 + v1 호환(DBRP/Auth) 설정 → 기존 코드와 쿼리 호환 유지
 2. Chronograf 컨테이너 실행 → InfluxDB 데이터를 시각화하는 Web UI
 3. Kafka KRaft 클러스터 재시작 → 지난 Lab2에서 구축한 Controller/Broker 실행
-4. Flume 실행 → 데이터 스트리밍을 위한 Flume 에이전트 실행
+4. Fluentd 실행 → 데이터 스트리밍을 위한 Fluentd 에이전트 실행
 5. Python (Kafka) Consumer 실행 (broker_to_influxdb.py) → Kafka Broker로부터 데이터를 받아 InfluxDB에 적재
 6. Chronograf 대시보드 구성 → InfluxDB의 데이터를 시각적으로 확인할 수 있도록 설정

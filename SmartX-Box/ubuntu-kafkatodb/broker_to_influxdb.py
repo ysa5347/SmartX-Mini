@@ -16,83 +16,81 @@ import subprocess
 from time import localtime, strftime
 
 
-
-
-cmd ="curl -XPOST 'http://localhost:8086/query' --data-urlencode 'q=CREATE DATABASE 'Labs''"
-subprocess.call([cmd], shell=True)
+# InfluxDB 2.x(v1 compatibility)에서는 bucket/DBRP를 사전 생성하므로
+# 실행 시 CREATE DATABASE 호출을 하지 않습니다.
 
 timeout = 100
 actual_data=[]
 
-consumer = KafkaConsumer('resource',bootstrap_servers=['<NUC_IP>:9091'])
+consumer = KafkaConsumer('resource',bootstrap_servers=['localhost:9090'])
 partitions = consumer.poll(timeout)
 while partitions == None or len(partitions) == 0:
 
-        consumer = KafkaConsumer('resource', bootstrap_servers=['<NUC_IP>:9091'])
+        consumer = KafkaConsumer('resource', bootstrap_servers=['localhost:9090'])
         message = next(consumer)
         print(message.value.decode('utf-8'))
 
         str1 = message.value.decode('utf-8')
 
-        str2 = str1.split(',')
+        payload = json.loads(str1)
 
-        str3 = str2[0].split(':')[1] #memory
+        str3 = payload.get('free_ram', 0)   # memory
 
-        str4 = str2[1].split(':')[1] #tx
+        str4 = payload.get('tx_bytes', 0)   # tx
 
-        str5 = str2[2].split(':')[1] #rx
+        str5 = payload.get('rx_bytes', 0)   # rx
 
-        str6 = str2[4].split(':')[1] #cpu_usage
+        str6 = payload.get('cpu_load', 0)   # cpu_usage
 
-        str7 = str2[5].split(':')[1] #tx_dropped
+        str7 = payload.get('tx_drops', 0)   # tx_dropped
 
-        str8 = str2[8].split(':')[1] #rxError
+        str8 = payload.get('rx_errors', 0)  # rxError
 
-        str9 = str2[9].split(':')[1] #disk
+        str9 = payload.get('disk_util', 0)  # disk
 
-        str10 = str2[10].split(':')[1] #rx_dropped
+        str10 = payload.get('rx_drops', 0)  # rx_dropped
 
-        str11 = str2[11].split(':')[1] #tx_dropped
+        str11 = payload.get('tx_errors', 0) # txError
 
-        str12 = str2[12].split(':')[1] #time_stamp
+        str12 = payload.get('time', '')     # time_stamp
 
         variables = "labs"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST memory=%s'" % (variables, str3)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST memory=%s'" % (variables, str3)
         subprocess.call([cmd], shell=True)
 
         variables = "labs"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST tx=%s'" % (variables, str4)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST tx=%s'" % (variables, str4)
         subprocess.call([cmd], shell=True)
 
         variables = "labs"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST rx=%s'" % (variables, str5)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST rx=%s'" % (variables, str5)
         subprocess.call([cmd], shell=True)
 
         variables = "labs"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST CPU_Usage=%s'" % (variables, str6)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST CPU_Usage=%s'" % (variables, str6)
         subprocess.call([cmd], shell=True)
 
         variables = "str7"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST tx_dropped=%s'" % (variables, str7)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST tx_dropped=%s'" % (variables, str7)
         subprocess.call([cmd], shell=True)
 
         variables = "str8"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST rxError=%s'" % (variables, str8)
-        subprocess.call([cmd], shell=True)
-
-
-        variables = "str8"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST disk=%s'" % (variables, str9)
-        subprocess.call([cmd], shell=True)
-
-
-
-        variables = "str8"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST rx_dropped=%s'" % (variables, str10)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST rxError=%s'" % (variables, str8)
         subprocess.call([cmd], shell=True)
 
 
         variables = "str8"
-        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs' --data-binary '%s,host=Labs,region=GIST txError=%s'" % (variables, str11)
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST disk=%s'" % (variables, str9)
+        subprocess.call([cmd], shell=True)
+
+
+
+        variables = "str8"
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST rx_dropped=%s'" % (variables, str10)
+        subprocess.call([cmd], shell=True)
+
+
+        variables = "str8"
+        cmd = "curl -i -XPOST 'http://localhost:8086/write?db=Labs&u=tower&p=SxMiniV12026' --data-binary '%s,host=Labs,region=GIST txError=%s'" % (variables, str11)
         subprocess.call([cmd], shell=True)
 
