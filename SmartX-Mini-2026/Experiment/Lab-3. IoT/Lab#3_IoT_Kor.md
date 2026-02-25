@@ -65,7 +65,7 @@ Node.js는 오픈 소스, 크로스 플랫폼을 지원하는 백엔드 JavaScri
 2. 저장된 정보를 json 형식으로 반환해주는 역할을 합니다.
 
 ```bash
-vim ~/SmartX-Mini/Experiment/'Lab-3. IoT'/deploy/webserver/webserver.js
+vim ~/SmartX-Mini-2026/Experiment/'Lab-3. IoT'/deploy/webserver/webserver.js
 ```
 
 ![webserver code](./img/webserver.png)
@@ -75,7 +75,7 @@ vim ~/SmartX-Mini/Experiment/'Lab-3. IoT'/deploy/webserver/webserver.js
 webserver 디렉토리로 이동한 뒤 Docker 이미지를 빌드합니다.
 
 ```bash
-cd ~/SmartX-Mini/Experiment/'Lab-3. IoT'/deploy/webserver
+cd ~/SmartX-Mini-2026/Experiment/'Lab-3. IoT'/deploy/webserver
 
 sudo docker build -t webserver .
 ```
@@ -85,7 +85,7 @@ sudo docker build -t webserver .
 Pi에서 사용할 파일들을 압축하여 scp로 전송합니다.
 
 ```bash
-cd ~/SmartX-Mini/Experiment/'Lab-3. IoT'/deploy
+cd ~/SmartX-Mini-2026/Experiment/'Lab-3. IoT'/deploy
 
 tar -czf pi.tar.gz pi/
 
