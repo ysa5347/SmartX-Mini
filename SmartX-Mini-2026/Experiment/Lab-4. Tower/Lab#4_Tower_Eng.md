@@ -178,6 +178,7 @@ sudo apt-get install -y libcurl4 openssl curl python3-pip python3-venv
 ### 1-3-2. Activate virtual environment and install Python packages
 
 <!-- TODO: pip path edit, .gitignore update needed -->
+
 Activate the Python venv created in Lab 2, then install packages.
 
 ```bash
@@ -195,8 +196,6 @@ pip show requests kafka-python influxdb msgpack
 > [!TIP]
 >
 > Every time you open a new terminal, run `source ~/.venv/bin/activate` before running Python commands.
-
-<br>
 
 ## 1-4. Start Kafka Cluster (KRaft, in NUC)
 
@@ -340,15 +339,15 @@ Open your web browser and access Chronograf.
 In Chronograf, update the default connection first and add InfluxDB auth info.
 Go to `Configuration -> Connections` and click the default connection.
 
-<img src="./img/chronograf-config-1.png" alt="chronograf-config-1">
+![chronograf-config-1](./img/chronograf-config-1.png)
 
 Enter `INFLUXDB_V1_USER` and `INFLUXDB_V1_PASSWORD` into the username/password fields.
 
-<img src="./img/chronograf-config-2.png" alt="chronograf-config-2">
+![chronograf-config-2](./img/chronograf-config-2.png)
 
 In the Dashboard setup flow, click InfluxDB and skip Kapacitor configuration.
 
-<img src="./img/chronograf-config-3.png" alt="chronograf-config-3">
+![chronograf-config-3](./img/chronograf-config-3.png)
 
 - URL: `http://<NUC IP>:8086`
 - Username: `tower`
@@ -356,7 +355,7 @@ In the Dashboard setup flow, click InfluxDB and skip Kapacitor configuration.
 
 ### 1-7-3. Create a dashboard
 
-<img src="./img/chronograf-2.png" alt="chronograf-2">
+![chronograf-2](./img/chronograf-2.png)
 
 ### 1-7-4. Register a query
 
@@ -371,17 +370,19 @@ SELECT "memory" FROM "Labs"."autogen"."labs" WHERE time > :dashboardTime:
 > If `Submit Query` returns `received status code 401 ... unauthorized access`, check in this order:
 >
 > 1. Verify v1 auth from CLI first.
+>
 >    ```bash
 >    curl -i -XPOST "http://localhost:8086/query?db=Labs&u=tower&p=<INFLUXDB_V1_PASSWORD>" \
 >      --data-urlencode "q=SHOW MEASUREMENTS"
 >    ```
+>
 > 2. If response is `200 OK`, recreate the default connection in `Configuration -> Connections`.
 >    - URL: `http://<NUC IP>:8086`
 >    - Username: `tower`
 >    - Password: `<INFLUXDB_V1_PASSWORD>`
 > 3. Make sure the newly created config is selected at the top of the Query page, then submit again.
 >
-> <img src="./img/chronograf-config-4.png" alt="chronograf-config-4">
+> ![chronograf-config-4](./img/chronograf-config-4.png)
 
 ### 1-7-5. Check monitoring
 

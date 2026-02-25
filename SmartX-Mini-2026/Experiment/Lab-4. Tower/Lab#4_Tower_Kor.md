@@ -89,6 +89,7 @@ InfluxDB는 **8086번 port**를 사용하며, `--net host` 옵션을 사용했�
 `broker_to_influxdb.py`와 Chronograf의 기존 쿼리(`Labs.autogen`)를 그대로 사용하기 위해 v1 호환 구성을 추가합니다.
 
 먼저 아래 명령으로 `Labs` bucket ID를 확인하고, 환경변수를 선언합니다.
+
 ```bash
 LABS_BUCKET_ID=$(sudo docker exec influxdb influx bucket list --name Labs | awk 'NR==2 {print $1}')
 ```
@@ -104,13 +105,16 @@ sudo docker exec influxdb influx v1 dbrp create \
   --org GIST \
   --token $INFLUXDB_ADMIN_TOKEN
 ```
+
 DBRP 매핑이 생성되면 아래와 같이 출력됩니다.
+
 ```bash
 ID                      Database        Bucket ID               Retention Policy        Default Organization ID
 104bca211b4ac000        Labs            a239a82440d4728d        autogen                 true    1b30065610067f7a
 ```
 
 마지막으로 아래 명령을 실행하여 v1 호환 인증 계정을 생성합니다.
+
 > [!tip]
 >
 > `INFLUXDB_V1_PASSWORD`는 URL 쿼리 문자열에 들어가므로 영문/숫자 조합으로 설정하는 것을 권장합니다.
@@ -128,7 +132,6 @@ sudo docker exec influxdb influx v1 auth create \
   --token $INFLUXDB_ADMIN_TOKEN
 ```
 
-
 ## 1-2. Chronograf Container 생성 및 실행 ( in NUC )
 
 InfluxDB에 접근할 수 있는 url을 argument로 입력해 **chronograf container**를 생성합니다.
@@ -139,9 +142,11 @@ sudo docker run -d -p 8888:8888 --name chronograf chronograf --influxdb-url http
 ```
 
 이후 아래 명령으로 chronograf container가 정상적으로 실행되고 있는지 확인합니다.
+
 ```bash
 sudo docker logs --tail 100 chronograf
 ```
+
 ![alt text](img/chronograf_run.png)
 
 - **`-p 8888:8888`의 역할**
@@ -170,8 +175,11 @@ sudo apt-get install -y libcurl4 openssl curl python3-pip python3-venv
 ```
 
 ### 1-3-2. 가상환경 생성 및 Python Packages 설치
+
 <!-- pip path edit, .gitignore 추가 필요 -->
+
 Lab 2에서 생성한 python venv를 실행하고 package를 설치합니다.
+
 ```bash
 source ~/.venv/bin/activate
 python -m pip install --upgrade pip
@@ -187,8 +195,6 @@ pip show requests kafka-python influxdb msgpack
 > [!tip]
 >
 > 새 터미널을 열 때마다 `source ~/.venv/bin/activate`를 먼저 실행한 뒤 Python 명령을 사용하세요.
-
-<br>
 
 ## 1-4. Kafka Cluster 실행 (KRaft, in NUC)
 
@@ -329,16 +335,15 @@ python ~/SmartX-Mini/SmartX-Mini-2026/Experiment/Lab-4. Tower/deploy/ubuntu-kafk
 
 Chronograf Config에서 Default Connection을 먼저 수정하여 InfluxDB 인증 정보를 추가합니다. 위와 같이 Configuration --> Connections 아래에 위치한 default connection을 클릭합니다.
 
-<img src="./img/chronograf-config-1.png" alt="chronograf-config-1">
+![chronograf-config-1](./img/chronograf-config-1.png)
 
 그리고 이전에 InfluxDB container를 올릴 때 사용한 `INFLUXDB_V1_USER`, `INFLUXDB_V1_PASSWORD`를 각각 `username`, `password` 필드에 입력합니다.
 
-<img src="./img/chronograf-config-2.png" alt="chronograf-config-2">
+![chronograf-config-2](./img/chronograf-config-2.png)
 
-Dashboard 섹션에서 InfluxDB를 클릭하고 넘어간 뒤, Kapacitor 설정은 skip 합니다. 
+Dashboard 섹션에서 InfluxDB를 클릭하고 넘어간 뒤, Kapacitor 설정은 skip 합니다.
 
-<img src="./img/chronograf-config-3.png" alt="chronograf-config-3">
-
+![chronograf-config-3](./img/chronograf-config-3.png)
 
 - URL: `http://<NUC IP>:8086`
 - Username: `tower`
@@ -346,7 +351,7 @@ Dashboard 섹션에서 InfluxDB를 클릭하고 넘어간 뒤, Kapacitor 설정�
 
 ### 1-7-3. 대시보드 생성하기
 
-<img src="./img/chronograf-2.png" alt="chronograf-2">
+![chronograf-2](./img/chronograf-2.png)
 
 ### 1-7-4. 쿼리 등록하기
 
@@ -361,17 +366,18 @@ SELECT "memory" FROM "Labs"."autogen"."labs" WHERE time > :dashboardTime:
 > `Submit Query`에서 `received status code 401 ... unauthorized access`가 나오면 아래 순서로 확인하세요.
 >
 > 1. 먼저 CLI에서 v1 인증이 정상인지 확인
+>
 >    ```bash
 >    curl -i -XPOST "http://localhost:8086/query?db=Labs&u=tower&p=<INFLUXDB_V1_PASSWORD>" \
 >      --data-urlencode "q=SHOW MEASUREMENTS"
 >    ```
+>
 > 2. `200 OK`이면 Chronograf의 `Configuration -> Connections`에서 default connection을 다시 생성
 >    - URL: `http://<NUC IP>:8086`
 >    - Username: `tower`
 >    - Password: `<INFLUXDB_V1_PASSWORD>`
 > 3. Query 화면 상단에서 방금 만든 Config가 선택되었는지 확인 후 다시 `Submit Query`
-> <img src="./img/chronograf-config-4.png" alt="chronograf-config-4">
->
+>    ![chronograf-config-4](./img/chronograf-config-4.png)
 
 ### 1-7-5. 모니터링 확인하기
 
