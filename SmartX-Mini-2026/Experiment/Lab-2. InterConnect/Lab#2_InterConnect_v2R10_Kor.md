@@ -84,7 +84,7 @@ Net-SNMP는 리눅스 시스템에 SNMP Manager와 SNMP Agent 역할을 수행�
 > [!note]
 > 수집될 상태 정보는 실습 과정 중 Fluentd 배치 때 확인할 `fluent.conf` 파일의 `command` 항목에 기록된 OID를 통해 확인 가능합니다.
 
-<!--  -->
+<!-- -->
 
 > [!tip]
 > SNMP를 더 자세히 알고 싶다면 [GeeksForGeeks](https://www.geeksforgeeks.org/simple-network-management-protocol-snmp/)를 참고해주세요.
@@ -259,7 +259,7 @@ ls -alh # Check all files
 >
 > 참조: <https://cloudinit.readthedocs.io/en/stable/reference/datasources/nocloud.html#source-files>
 
-<!--  -->
+<!-- -->
 
 > [!note]
 >
@@ -611,7 +611,7 @@ sudo vim /etc/hosts
 > Pi의 `/etc/hosts`는 `cloud-init`에 의해 부팅 과정에서 초기화됩니다.  
 > 만약 종료 이후에도 `/etc/hosts`를 유지하고 싶을 경우, 후술할 참고 영역을 따릅니다.
 
-<!--  -->
+<!-- -->
 
 > [!tip]
 >
@@ -805,7 +805,7 @@ sudo docker ps
 >
 > `docker-compose.yml`에 작성된 환경변수 설정들을 컨테이너 내부에 주입하고, 각 노드의 역할(Controller/Broker)에 맞는 설정 파일을 자동으로 생성한 뒤 Kafka를 시작합니다.
 
-<!--  -->
+<!-- -->
 
 > [!tip]
 >
@@ -936,7 +936,7 @@ sudo docker run -it --rm \
 >
 > `--security-opt seccomp=unconfined` 옵션은 HypriotOS의 커널(4.19)에서 seccomp 정책이 일부 시스템 콜을 차단하는 문제를 우회하기 위해 필요합니다.
 
-<!--  -->
+<!-- -->
 
 > [!note]
 >
