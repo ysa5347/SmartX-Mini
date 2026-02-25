@@ -76,6 +76,8 @@ Let's take a close look at the overall structure.
 > When you hover over the code block, a copy button appears in the upper right corner. You can click this button to copy the content. This feature is provided for convenience. However, during the practice, you should not simply copy and paste everything as it is. Each student may need to modify certain parts of the commands or files. Therefore, carefully review the document and make sure to adjust the necessary parts accordingly.
 > ![copy button](img/copy.png)
 
+<!-- -->
+
 > [!IMPORTANT]
 > Please check allocated IP address of your NUC, VM, and container in the ribbon paper.  
 > **NUC** stands for `Next Unit of Computing`, a compact computer developed by Intel. We will be using NUCs for our lab sessions.  
@@ -257,13 +259,17 @@ If an issue related to booting occurs, follow these steps.
 >
 > By connecting a TAP interface to a bridge network like br0, you can configure a bridge network that allows the VM and the host to operate on the same subnet. This setup enables the VM to function as if it were physically connected to the network.
 
+<!-- -->
+
 > [!CAUTION]  
 > **Caution! One tab for indentation**  
 > Type your NUC's IP in `<your nuc ip>` and gateway IP in `<gateway ip>`. (At this time, the parentheses should be excluded when entering.)
 
+<!-- -->
+
 > [!CAUTION]  
 > ⚠️ **Caution!** ⚠️  
-> \*_If the NUC has two Ethernet ports, the `eno1` interface may not be available. Use the ifconfig command to check the network-connected interfaces (`enp88s0` or `enp89s0`). For example, enter `ifconfig -a` in the terminal and select the interface where RX and TX packets are not zero. Then, replace all occurrences of `eno1` in the text with either `enp88s0` or `enp89s0`, depending on the active interface._
+> **If the NUC has two Ethernet ports, the `eno1` interface may not be available. Use the ifconfig command to check the network-connected interfaces (`enp88s0` or `enp89s0`). For example, enter `ifconfig -a` in the terminal and select the interface where RX and TX packets are not zero. Then, replace all occurrences of `eno1` in the text with either `enp88s0` or `enp89s0`, depending on the active interface.**
 
 Add the contents below. (Note: The values of `address`, `netmask`, `gateway`, and `dns-nameservers` may vary depending on the lab environment.)
 
@@ -330,6 +336,8 @@ iface vport_vFunction inet manual
 >       up ip link set dev vport_vFunction up
 >       post-down ip link del dev vport_vFunction
 >   ```
+
+<!-- -->
 
 > [!CAUTION]  
 > ⚠️ **Caution!** ⚠️  
@@ -604,8 +612,10 @@ sudo ovs-docker add-port br0 veno1 c1 --ipaddress=<docker_container_IP>/24 --gat
 > When writing --ipaddress=<docker_container_IP>/24 --gateway=<gateway_IP>, remove the brackets `<>` and use the format 172.29.0.X.  
 > For example: --ipaddress=172.29.0.X/24 --gateway=172.29.0.254
 
+<!-- -->
+
 > [!NOTE]  
-> **⚠️ If there were no issues, skip this part(Note block). ⚠️**
+> **⚠️ If there were no issues, skip this part(Note block). ⚠️**  
 > **If there was a typo or mistake while executing the `sudo ovs-docker add-port br0 veno1 c1 --ipaddress=<docker_container_IP>/24 --gateway=<gateway_IP>` command, execute `sudo ovs-docker del-port br0 veno1 c1` and then re-run `sudo ovs-docker add-port br0 veno1 c1 --ipaddress=<docker_container_IP>/24 --gateway=<gateway_IP>`.**
 
 Enter to docker container
