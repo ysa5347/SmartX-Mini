@@ -194,10 +194,13 @@ If an issue related to booting occurs, follow these steps.
 
 > [!WARNING]
 > Before proceeding on Ubuntu Desktop 24.04, check the following points first:
+>
 > 1. Running `sudo apt-get purge netplan.io` may cause abnormal network behavior after reboot.
 > 2. If NetworkManager and ifupdown control interfaces at the same time, IP conflicts or link flapping can occur.
 > 3. If the `ovs-docker` script is missing, the `add-port` step can fail.
 > 4. If `kvm` is unavailable, use `qemu-system-x86_64` instead.
+
+<!-- -->
 
 > [!CAUTION]  
 > **⚠️(Important: If a window appears asking whether to update Ubuntu after logging in, make sure to select “Don’t Upgrade”!)⚠️**
@@ -242,18 +245,17 @@ If an issue related to booting occurs, follow these steps.
    ![Ovs Vsctl Show](./img/ovs_vsctl_show.png)
 
 5. Change default network manager (Ubuntu 24.04)
-
    - In Ubuntu 24.04, disable the default network managers first to avoid conflicts with OVS + ifupdown manual settings.
    - These commands may temporarily disconnect networking, so run them on the **local console (directly on the NUC screen)**.
 
-  ```bash
-  sudo systemctl stop systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
-  sudo systemctl disable systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
-  sudo systemctl mask systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
-  sudo systemctl stop NetworkManager
-  sudo systemctl disable NetworkManager
-  sudo apt --assume-yes purge netplan.io
-  ```
+```bash
+sudo systemctl stop systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
+sudo systemctl disable systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
+sudo systemctl mask systemd-networkd.socket systemd-networkd networkd-dispatcher systemd-networkd-wait-online
+sudo systemctl stop NetworkManager
+sudo systemctl disable NetworkManager
+sudo apt --assume-yes purge netplan.io
+```
 
 - DNS configuration
 

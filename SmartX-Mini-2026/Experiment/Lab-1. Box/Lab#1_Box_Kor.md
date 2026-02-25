@@ -184,10 +184,13 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
 
 > [!WARNING]
 > Ubuntu Desktop 24.04로 전환할 때 아래 항목에서 문제가 발생할 수 있으니 먼저 확인합니다.
+>
 > 1. `sudo apt-get purge netplan.io`를 수행하면 부팅 후 네트워크가 비정상 동작할 수 있습니다.
 > 2. NetworkManager와 ifupdown이 동시에 인터페이스를 제어하면 IP 충돌/링크 재기동이 발생할 수 있습니다.
 > 3. `ovs-docker` 스크립트가 없으면 `add-port` 단계가 실패할 수 있습니다.
 > 4. `kvm` 명령이 없는 환경에서는 `qemu-system-x86_64`로 대체해야 합니다.
+
+<!-- -->
 
 > [!CAUTION]  
 > **⚠️ (중요. 로그인 뒤에 Ubuntu를 업데이트할 것인지 묻는 창이 뜬다면 반드시 Don't Upgrade를 선택해야합니다!) ⚠️**
@@ -234,7 +237,6 @@ OS : Ubuntu Desktop 24.04 LTS(64bit)
    ![Ovs Vsctl Show](./img/ovs_vsctl_show.png)
 
 5. Change default network manager (Ubuntu 24.04)
-
    - Ubuntu 24.04에서는 Netplan 패키지를 삭제하지 않고 유지합니다. 대신 OVS + ifupdown 수동 설정 충돌을 피하기 위해 기본 네트워크 매니저를 비활성화합니다.
    - 아래 작업은 네트워크가 잠시 끊길 수 있으므로 **로컬 콘솔(NUC 직접 화면)**에서 진행합니다.
 
