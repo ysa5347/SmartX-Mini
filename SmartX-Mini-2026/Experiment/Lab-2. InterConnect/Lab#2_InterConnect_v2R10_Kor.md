@@ -219,7 +219,7 @@ curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.s
 sudo apt install -y git-lfs
 git lfs install
 git clone https://github.com/SmartX-Labs/SmartX-Mini.git
-cd ~/SmartX-Mini/SmartX-Mini-2025/Experiment/Lab-2.\ InterConnect/deploy/hypirotos
+cd ~/SmartX-Mini/SmartX-Mini-2026/Experiment/Lab-2.\ InterConnect/deploy/hypirotos
 ```
 
 <details>
@@ -281,7 +281,7 @@ ls -alh # Check all files
 > 참고2: https://cloudinit.readthedocs.io/en/stable/reference/datasources/nocloud.html
 
 ```bash
-pwd # 현재 Directory가 "SmartX-Mini/SmartX-Mini-2025/Experiment/Lab-2. InterConnect/"인지 확인
+pwd # 현재 Directory가 "SmartX-Mini/SmartX-Mini-2026/Experiment/Lab-2. InterConnect/"인지 확인
 vim network-config
 ```
 
@@ -660,7 +660,7 @@ NUC과 Pi가 Hostname을 이용하여 정상적으로 통신할 수 있게 되�
 먼저 Kafka 배치에 사용할 디렉토리로 이동합니다.
 
 ```bash
-cd ~/SmartX-Mini/SmartX-Mini-2025/Experiment/'Lab-2. InterConnect'/deploy/kafka
+cd ~/SmartX-Mini/SmartX-Mini-2026/Experiment/'Lab-2. InterConnect'/deploy/kafka
 ```
 
 디렉토리 내 `Dockerfile`이 하단과 동일한지 확인합니다.
@@ -875,7 +875,7 @@ sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 다음으로, Fluentd 디렉토리로 이동한 뒤 `fluent.conf`에서 NUC의 hostname을 수정합니다.
 
 ```bash
-cd ~/SmartX-Mini/SmartX-Mini-2025/Experiment/'Lab-2. InterConnect'/deploy/fluentd
+cd ~/SmartX-Mini/SmartX-Mini-2026/Experiment/'Lab-2. InterConnect'/deploy/fluentd
 vim fluent.conf
 ```
 
